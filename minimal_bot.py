@@ -6,15 +6,13 @@ import subprocess
 
 import config
 
-readbuffer=''
+print 'Trying to connect to %s:%s%s' % (config.HOST, config.PORT, config.CHANNEL)
 
 s=socket.socket()
 s.connect((config.HOST, config.PORT))
 s.send("NICK %s\r\n" % config.NICK)
 s.send("USER %s %s bla :%s\r\n" % (config.IDENT, config.HOST, config.REALNAME))
 s.send("JOIN %s\r\n" % config.CHANNEL)
-
-print 'Connected to %s:%s%s' % (config.HOST, config.PORT, config.CHANNEL)
 
 def parse(input):
     p = subprocess.Popen(config.PARSE_COMMAND,
@@ -25,6 +23,7 @@ def parse(input):
 
     return p.communicate(input=input)[0].strip().split('\n')
 
+readbuffer=''
 while 1:
     readbuffer = readbuffer + s.recv(1024)
     temp = readbuffer.split("\n")
@@ -33,6 +32,9 @@ while 1:
     for line in temp:
         line = line.strip()
         tokens = line.split()
+
+        if tokens[0] == ':%s' % config.HOST:
+            print ' '.join(tokens[3:])
 
         if tokens[1] == "PRIVMSG" and tokens[2] == config.CHANNEL:
             messages = parse(line)
