@@ -39,5 +39,5 @@ while 1:
             for message in messages:
                 s.send("PRIVMSG %s :%s\r\n" % (config.CHANNEL, message))
 
-        if line[0] == "PING":
+        if tokens[0] == "PING":
             s.send("PONG %s\r\n" % tokens[1])
