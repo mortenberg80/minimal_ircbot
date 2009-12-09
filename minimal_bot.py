@@ -2,7 +2,6 @@
 # Based on the O'Reilly example at http://oreilly.com/pub/h/1968
 import sys
 import socket
-import string
 import subprocess
 
 import config
