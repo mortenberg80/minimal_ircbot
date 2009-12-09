@@ -21,7 +21,7 @@ def parse(input):
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE)
 
-    return p.communicate(input=input)[0].strip().split('\n')
+    return p.communicate(input=input)[0].split('\n')[:-1]
 
 readbuffer=''
 while 1:
