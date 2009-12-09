@@ -14,7 +14,7 @@ s.send("NICK %s\r\n" % config.NICK)
 s.send("USER %s %s bla :%s\r\n" % (config.IDENT, config.HOST, config.REALNAME))
 s.send("JOIN %s\r\n" % config.CHANNEL)
 
-print 'Running'
+print 'Connected to %s:%s%s' % (config.HOST, config.PORT, config.CHANNEL)
 
 def parse(input):
     p = subprocess.Popen(config.PARSE_COMMAND,
