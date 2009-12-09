@@ -17,7 +17,7 @@ s.send("JOIN %s\r\n" % config.CHANNEL)
 print 'Running'
 
 def parse(input):
-    p = subprocess.Popen('python %s' % 'minimal_parser.py',
+    p = subprocess.Popen(config.PARSE_COMMAND,
         shell=True,
         bufsize=1024,
         stdin=subprocess.PIPE,
