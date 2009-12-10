@@ -71,9 +71,13 @@ class Parser(object):
         try:
             re.match('^\w[\w\.]+\w$', host).group(0)
             p = subprocess.Popen(["ping", "-c 1", host],
-                stdout=subprocess.PIPE).stdout
-            output = p.readlines()[1]
-            return output
+                stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE)
+            error = p.stderr.readline()
+            if len(error) > 0:
+                return error
+            else:
+                return p.stdout.readlines()[1]
         except AttributeError:
             return "Example usage: %s: ping vg.no" % config.NICK
 
