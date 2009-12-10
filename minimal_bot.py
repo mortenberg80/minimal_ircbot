@@ -8,8 +8,11 @@ import config
 
 print 'Trying to connect to %s:%s%s' % (config.HOST, config.PORT, config.CHANNEL)
 
+print 'Trying to create socket...'
 s=socket.socket()
+print 'Socket created, trying to connect...'
 s.connect((config.HOST, config.PORT))
+print 'Connected, setting nick and joining channel...'
 s.send("NICK %s\r\n" % config.NICK)
 s.send("USER %s %s bla :%s\r\n" % (config.IDENT, config.HOST, config.REALNAME))
 s.send("JOIN %s\r\n" % config.CHANNEL)
