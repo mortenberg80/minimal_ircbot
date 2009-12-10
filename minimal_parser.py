@@ -77,7 +77,7 @@ class Parser(object):
             if len(error) > 0:
                 return error
             else:
-                return p.stdout.readlines()[1]
+                return "ping %s: %s" % (host, p.stdout.readlines()[1])
         except AttributeError:
             return "Example usage: %s: ping vg.no" % config.NICK
 
