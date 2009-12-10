@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime as dt
 import re
+import subprocess
 import sys
 
 import config
@@ -28,7 +29,7 @@ class Parser(object):
             pass
 
         if type(output) == str:
-            output = output.split('\n')
+            output = output.strip().split('\n')
 
         return output
 
@@ -48,6 +49,12 @@ class Parser(object):
 
         return '%s_%s' % (prefix, default)
 
+    def handle_ping(self):
+        return 'pong'
+
+    def handle_time(self):
+        return dt.datetime.now().strftime("%Y-%m-%d %H:%M")
+
     def handle_personal_default(self):
         output = ["Beklager... Jeg har ikke lært meg ditt språk ennå."]
         output += ["Prøv %s: how are you?" % config.NICK]
@@ -59,11 +66,16 @@ class Parser(object):
     def handle_personal_echo(self):
         return ' '.join(self.tokens)
 
-    def handle_ping(self):
-        return 'pong'
-
-    def handle_time(self):
-        return dt.datetime.now().strftime("%Y-%m-%d %H:%M")
+    def handle_personal_ping(self):
+        host = self.tokens.pop(0)
+        try:
+            re.match('^\w[\w\.]+\w$', host).group(0)
+            p = subprocess.Popen(["ping", "-c 1", host],
+                stdout=subprocess.PIPE).stdout
+            output = p.readlines()[1]
+            return output
+        except AttributeError:
+            return "Example usage: %s: ping vg.no" % config.NICK
 
 p = Parser(sys.stdin.readline())
 output = p.parse()
