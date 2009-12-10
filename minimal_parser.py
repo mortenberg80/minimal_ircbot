@@ -1,46 +1,63 @@
 # -*- coding: utf-8 -*-
-import sys
 import datetime as dt
+import re
+import sys
 
 import config
 
-class parser:
+class Parser(object):
     def __init__(self, input):
         self.input = input
-        self.tokens = input.split()
-        self.message_tokens = self.tokens[3:]
-        self.message_tokens[0] = self.message_tokens[0][1:]
+        self.input_tokens = input.split()
+        self.tokens = self.input_tokens[3:]
+        self.tokens[0] = self.tokens[0][1:]
 
     def parse(self):
-        message = ' '.join(self.message_tokens)
+        message = ' '.join(self.tokens)
         output = []
 
-        if message.lower() == "ping":
-            output = self.handle_ping()
+        if self.tokens[0] == '%s:' % config.NICK:
+            self.tokens.pop(0)
+            handler_name = self.find_handler(prefix = 'handle_personal')
+        else:
+            handler_name = self.find_handler(prefix = 'handle')
 
-        elif message.lower() == "time":
-            output = self.handle_time()
-
-        elif self.message_tokens.pop(0) == '%s:' % config.NICK:
-            output = self.parse_personal_message()
+        try:
+            output = apply(self.__getattribute__(handler_name))
+        except AttributeError:
+            pass
 
         if type(output) == str:
             output = output.split('\n')
 
         return output
 
-    def parse_personal_message(self):
-        self.message = ' '.join(self.message_tokens)
+    def find_handler(self, parser=None, prefix = 'handle', default = 'default'):
+        if parser is None:
+            parser = self
 
-        if self.message.lower() == 'how are you?':
-            return self.handle_personal_how_are_you()
-        else:
-            output = ["Beklager... Jeg har ikke lært meg ditt språk ennå."]
-            output += ["Prøv %s: how are you?" % config.NICK]
-            return output
+        handler_name = prefix
+        while len(self.tokens) > 0:
+            token = self.tokens.pop(0)
+
+            search = ''.join(re.findall('\w', token.lower()))
+            handler_name += '_%s' % search
+
+            if hasattr(parser, handler_name):
+                return handler_name
+
+        return '%s_%s' % (prefix, default)
+
+    def handle_personal_default(self):
+        output = ["Beklager... Jeg har ikke lært meg ditt språk ennå."]
+        output += ["Prøv %s: how are you?" % config.NICK]
+        return output
 
     def handle_personal_how_are_you(self):
         return 'I am bad to the bone!'
+
+    def handle_personal_echo(self):
+        return ' '.join(self.tokens)
 
     def handle_ping(self):
         return 'pong'
@@ -48,7 +65,7 @@ class parser:
     def handle_time(self):
         return dt.datetime.now().strftime("%Y-%m-%d %H:%M")
 
-p = parser(sys.stdin.readline())
+p = Parser(sys.stdin.readline())
 output = p.parse()
 
 for output_line in output:
